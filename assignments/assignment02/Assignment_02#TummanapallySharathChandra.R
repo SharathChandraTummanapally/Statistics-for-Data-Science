@@ -11,7 +11,7 @@ dir()
 ## If the current directory does not contain the `data` directory, set the
 ## working directory to project root folder (the folder should contain the `data` directory
 ## Use `setwd()` if needed
-setwd("/Users/sharath/dsc520")
+setwd("/Users/sharath/dsc520_SharathTummanapally")
 
 ## Load the file `data/tidynomicon/person.csv` to `person_df1` using `read.csv`
 ## Examine the structure of `person_df1` using `str()`
@@ -30,6 +30,7 @@ scores_df <- read.csv('data/scores.csv')
 summary(scores_df)
 
 ## Load the `readxl` library
+## install.packages("readxl")
 library(readxl)
 
 ## Using the excel_sheets() function from the `readxl` package,
