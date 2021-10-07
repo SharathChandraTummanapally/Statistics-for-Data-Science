@@ -1,11 +1,11 @@
 ---
-title: "ASSIGNMENT 5.2"
+title: "ASSIGNMENT 6.2"
 author: "Sharath Chandra Tummanapally"
 date: '2021-10-05'
 output:
   word_document: default
-  pdf_document: default
   html_document: default
+  pdf_document: default
 bibliography: bibliography.bib
 ---
 
