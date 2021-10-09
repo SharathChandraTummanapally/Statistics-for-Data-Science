@@ -66,7 +66,7 @@ ggplot(data=florida_df, aes(x=as.Date(date), group=1)) +
   geom_line(data=california_df, aes(y = cases, colour="California")) +
   scale_colour_manual("",
                       breaks = c("Florida", "New York", "California"),
-                      values = c("red", "green", "blue")) +
+                      values = c("darkred", "darkgreen", "steelblue")) +
   xlab(" ") + ylab("Cases") + scale_y_log10() 
 
 ```
