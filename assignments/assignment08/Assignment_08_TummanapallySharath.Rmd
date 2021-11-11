@@ -1,0 +1,385 @@
+---
+title: "ASSIGNMENT 8.2"
+author: "Sharath Chandra Tummanapally"
+date: "2021-10-20"
+output: 
+  word_document: default
+---
+
+# 1.
+
+```{r include = FALSE}
+
+## Set the working directory to the root of your DSC 520 directory
+setwd("/Users/sharath/dsc520_SharathTummanapally")
+
+## Loading the `data/r4ds/heights.csv` to heights_df
+heights_df <- read.csv("data/r4ds/heights.csv")
+
+## Load the ggplot2 library
+library(ggplot2)
+
+## Fit a linear model using the `age` variable as the predictor and `earn` as the outcome
+
+# Creating a linear model using age and earn variable.
+age_lm <- lm(earn~age, data = heights_df)
+```
+
+## View the summary of your model using `summary()`
+```{r echo = FALSE}
+
+# Viewing the summary of linear model.
+summary(age_lm)
+```
+
+```{r include = FALSE}
+## Creating predictions using `predict()`
+# Predicts the future values. 
+age_predict_df <- data.frame(earn = predict(age_lm, newdata = data.frame(age= heights_df$age)), age = heights_df$age)
+```
+
+## Plot the predictions against the original data
+```{r echo = FALSE}
+
+ggplot(data = heights_df, aes(y = earn, x = age)) +
+  geom_point(color='blue') +
+  geom_line(color='red',data = age_predict_df, aes(y=earn, x=age))
+```
+
+```{r include = FALSE}
+
+mean_earn <- mean(heights_df$earn)
+
+## Corrected Sum of Squares Total
+sst <- sum((mean_earn - heights_df$earn)^2)
+
+## Corrected Sum of Squares for Model
+ssm <- sum((mean_earn - age_predict_df$earn)^2)
+
+## Residuals
+residuals <- heights_df$earn - age_predict_df$earn
+
+## Sum of Squares for Error
+sse <- sum(residuals^2)
+```
+
+## R Squared R^2 = SSM\SST
+```{r echo = FALSE}
+
+r_squared <- 1- sse/sst
+r_squared
+```
+  
+```{r include = FALSE}
+## Number of observations
+n <- 1192
+
+## Number of regression parameters
+p <- 2
+```
+
+## Corrected Degrees of Freedom for Model (p-1)
+```{r echo = FALSE}
+
+dfm <- p - 1
+dfm
+```
+
+## Degrees of Freedom for Error (n-p)
+```{r echo = FALSE}
+
+dfe <- n - p
+dfe
+```
+
+
+```{r include = FALSE}
+## Corrected Degrees of Freedom Total:   DFT = n - 1
+dft <- n - 1
+
+## Mean of Squares for Model:   MSM = SSM / DFM
+msm <- ssm / dfm
+
+## Mean of Squares for Error:   MSE = SSE / DFE
+mse <- sse / dfe
+
+## Mean of Squares Total:   MST = SST / DFT
+mst <- sst / dft
+```
+
+## F Statistic F = MSM/MSE
+```{r echo = FALSE}
+
+f_score <- msm / mse
+f_score
+```
+
+## Adjusted R Squared R2 = 1 - (1 - R2)(n - 1) / (n - p)
+```{r echo = FALSE}
+
+adjusted_r_squared <- 1 - (1 - r_squared)*(n - 1) / (n - p)
+adjusted_r_squared
+```
+
+## Calculate the p-value from the F distribution
+```{r echo = FALSE}
+
+p_value <- pf(f_score, dfm, dft, lower.tail=F)
+p_value
+```
+
+# 2.
+```{r include = FALSE}
+
+## Set the working directory to the root of your DSC 520 directory
+setwd("/Users/sharath/dsc520_SharathTummanapally")
+
+# Loading the `data/r4ds/heights.csv` to heights_df
+heights_df <- read.csv("data/r4ds/heights.csv")
+
+# Fit a linear model
+earn_lm <-  lm(earn ~ ed + race + height + age + sex, data = heights_df)
+```
+
+## View the summary of your model
+```{r echo = FALSE}
+summary(earn_lm)
+
+```
+
+```{r include = FALSE}
+## Creating predictions using `predict()`
+predicted_df <- data.frame(earn = predict(earn_lm, newdata = data.frame(ed = heights_df$ed, race = heights_df$race, height = heights_df$height, age = heights_df$age, sex = heights_df$sex)),
+                           ed = heights_df$ed,
+                           race = heights_df$race,
+                           height = heights_df$height,
+                           age = heights_df$age,
+                           sex = heights_df$sex
+                           )
+
+## Compute deviation (i.e. residuals)
+mean_earn <- mean(heights_df$earn)
+
+## Corrected Sum of Squares Total
+sst <-  sum((mean_earn - heights_df$earn)^2)
+
+## Corrected Sum of Squares for Model
+ssm <- sum((mean_earn - predicted_df$earn)^2)
+
+## Residuals
+residuals <- heights_df$earn - predicted_df$earn
+
+## Sum of Squares for Error
+sse <- sum(residuals^2)
+```
+
+## R Squared
+```{r echo = FALSE}
+
+r_squared <- 1 - sse / sst
+r_squared
+```
+
+```{r include = FALSE}
+## Number of observations
+n <- 1192
+
+## Number of regression paramaters
+p <- 8
+```
+
+## Corrected Degrees of Freedom for Model
+```{r echo = FALSE}
+
+dfm <- p - 1
+dfm
+```
+
+## Degrees of Freedom for Error
+```{r echo = FALSE}
+
+dfe <- n - p
+dfe
+```
+
+```{r include = FALSE}
+## Corrected Degrees of Freedom Total:   DFT = n - 1
+dft <- n - 1
+
+## Mean of Squares for Model:   MSM = SSM / DFM
+msm <- ssm/dfm
+
+## Mean of Squares for Error:   MSE = SSE / DFE
+mse <- sse/dfe
+
+## Mean of Squares Total:   MST = SST / DFT
+mst <- sst/dft
+```
+
+## F Statistic
+```{r echo = FALSE}
+
+f_score <-  msm / mse
+f_score
+```
+
+## Adjusted R Squared R2 = 1 - (1 - R2)(n - 1) / (n - p)
+```{r echo = FALSE}
+
+adjusted_r_squared <- 1 - (1 - r_squared)*(n - 1) / (n - p)
+adjusted_r_squared
+```
+
+# 3.
+## Housing Data
+## a. Work individually on this assignment. You are encouraged to collaborate on ideas and strategies pertinent to this assignment. Data for this assignment is focused on real estate transactions recorded from 1964 to 2016 and can be found in Housing.xlsx. Using your skills in statistical correlation, multiple regression, and R programming, you are interested in the following variables: Sale Price and several other possible predictors.
+## If you worked with the Housing dataset in previous week – you are in luck, you likely have already found any issues in the dataset and made the necessary transformations. If not, you will want to take some time looking at the data with all your new skills and identifying if you have any clean up that needs to happen.
+
+## b. Complete the following:
+## Explain any transformations or modifications you made to the dataset
+
+### Transformations/Modifications that I made to the dataset are:
+* Using the 'ddply' function, calculated the Average sale price of a house by year is built. This function splits the data, performs  modification to the data, and then brings it back together.
+* Performed six different operations to analyze/transform the data i.e; GroupBy, Summarize, Mutate, Filter, Select, and Arrange.
+  1) Using GroupBy operation, getting the max sale price by site type.
+  2) Using Summarize operation, getting the average sale price , median sale price and maximum sq ft lot. 
+  3) Using Mutate operation, adding the new 'site_area_occupied' column to housing date frame.
+  4) Using Filter operation, getting the housing data from data frame for the site type's A1,C1.
+  5) Using Select function, getting sale date, sale price, address and square feet of lot from housing data frame.
+  6) Using Arrange operation, sorting the columns by average price.
+* Using purrr package, performed 2 functions on housing dataset. 
+  1) Using keep function, getting values sale price greater than 600000.
+  2) Using discard function, removing all NA values from sale warning.
+* Used the cbind and rbind function on the dataset.  
+
+## Create two variables; one that will contain the variables Sale Price and Square Foot of Lot (same variables used from previous assignment on simple regression) and one that will contain Sale Price and several additional predictors of your choice. Explain the basis for your additional predictor selections.
+```{r include = FALSE}
+
+library(readxl)
+
+# Setting the working directory.
+setwd("/Users/sharath/dsc520_SharathTummanapally")
+
+# Loading the Housing dataset.
+housing_df <- read_excel('data/week-7-housing.xlsx')
+
+# Creating single regression linear model.
+model_1 <- lm(`Sale Price`~sq_ft_lot, data = housing_df)
+
+# Creating multiple regression linear model.
+model_2 <-  lm(`Sale Price` ~ `Sale Date` + sq_ft_lot + bedrooms + bath_full_count + year_built, data = housing_df)
+```
+Here, We are trying to predict sale price(dependent variable) based on sale date, sq_ft_lot, bedrooms, bath count and year built(independent variables). These variables may have affect on the sale price, that are used to estimate the relationship between variables and effect of additional variables on sale price variations.
+
+## Execute a summary() function on two variables defined in the previous step to compare the model results. What are the R2 and Adjusted R2 statistics? Explain what these results tell you about the overall model. Did the inclusion of the additional predictors help explain any large variations found in Sale Price?
+
+```{r echo = FALSE}
+# Summary of two models.
+summary(model_1)
+summary(model_2)
+```
+R2 assumes that every single variable explains the variation in the dependent variable. The adjusted R2 tells the percentage of variation explained by only the independent variables that actually affect the dependent variable. In our example: R2, adjusted R2 for simple regression model are 0.01435, 0.01428. R2, adjusted R2 for multiple regression model are 0.1446, 0.1443. Based on the results we have seen, both the models are similar but second model has both R2 and adjusted values very close to each other. And the inclusion of additional predictors have slight variation in Sale Price. The more full baths a house has the higher price compared to other additional rooms.
+
+## Considering the parameters of the multiple regression model you have created. What are the standardized betas for each parameter and what do the values indicate?
+The standardized betas for each parameter are:
+```{r echo = FALSE}
+# install.packages('QuantPsyc')
+library(QuantPsyc)
+lm.beta(model_2)
+```
+A standardized beta coefficient compares the strength of the effect of each individual independent variable to the dependent variable. The values indicate that a change in 1 standard deviation of year_built has more impact on sale price than a 1 standard deviation change in the other variables i.e; sale date, sq_ft_lot, bedrooms, bath_full_count.
+
+## Calculate the confidence intervals for the parameters in your model and explain what the results indicate.
+```{r echo = FALSE}
+# Calculating confidence intervals for model 1 parameter.
+confint(model_1)
+# Calculating confidence intervals for model 2 parameter's.
+confint(model_2)
+```
+* These confidence interval results indicates that our data is representative of our population.
+
+## Assess the improvement of the new model compared to your original model (simple regression model) by testing whether this change is significant by performing an analysis of variance.
+
+```{r echo = FALSE}
+model1_aov <- aov(`Sale Price`~sq_ft_lot, data = housing_df)
+summary(model1_aov)
+
+model2_aov <- aov(`Sale Price` ~ `Sale Date` + sq_ft_lot + bedrooms + bath_full_count + year_built, data = housing_df)
+summary(model2_aov)
+```
+Assessment: Adding sale date, sq_ft_lot, bedrooms, bath_full_count, year_built to the model seems to have made the model better: it reduced the residual variance (the residual sum of squares went from 2.073e+15 to 1.799e+15), and both original and new model are statistically significant (p-values < 0.001).
+
+
+## Perform casewise diagnostics to identify outliers and/or influential cases, storing each function's output in a dataframe assigned to a unique variable name.
+```{r echo = FALSE}
+
+saleprice_var <- data.frame(std.residuals=rstandard(model_2),
+                            stud.residuals=rstudent(model_2),
+                            cooks.dist=cooks.distance(model_2),
+                            dfbeta=dfbeta(model_2),
+                            dffit=dffits(model_2),
+                            leverage=hatvalues(model_2),
+                            covariance.ratios=covratio(model_2))
+
+```
+
+## Calculate the standardized residuals using the appropriate command, specifying those that are +-2, storing the results of large residuals in a variable you create.
+```{r echo = FALSE}
+saleprice_var$large_residual <- saleprice_var$std.residuals > 2 | saleprice_var$std.residuals < -2
+```
+
+## Use the appropriate function to show the sum of large residuals.
+```{r echo = FALSE}
+sum(saleprice_var$large_residual)
+```
+
+## Which specific variables have large residuals (only cases that evaluate as TRUE)?
+```{r echo = FALSE}
+library(purrr)
+
+large_res <- filter(saleprice_var, saleprice_var$large_residual == TRUE)
+```
+
+## Investigate further by calculating the leverage, cooks distance, and covariance rations. Comment on all cases that are problematics.
+```{r echo = FALSE}
+leverage = hatvalues(model_2)
+cooks.dist = cooks.distance(model_2)
+covariance.ratios = covratio(model_2)
+saleprice_var[saleprice_var$large_residual , c("leverage" , "cooks.dist", "covariance.ratios") ]
+```
+* No problematics observed.
+
+
+
+## Perform the necessary calculations to assess the assumption of independence and state if the condition is met or not.
+```{r echo = FALSE}
+#install.packages('car')
+library('car')
+dwt(model_2)
+```
+From the output, we can see that the test statistic is 0.7154469 and the corresponding p-value is 0 which is less than 0.05, we can reject the null hypothesis and conclude that the residuals in this model are auto correlated.
+
+
+## Perform the necessary calculations to assess the assumption of no multicollinearity and state if the condition is met or not.
+```{r echo = FALSE}
+library('car')
+vif(model_2)
+```
+The VIF values are less than 2, hence condition is met for the assumption of no multicollinearity.
+
+
+## Visually check the assumptions related to the residuals using the plot() and hist() functions. Summarize what each graph is informing you of and if any anomalies are present.
+```{r echo = FALSE}
+hist(saleprice_var$std.residuals, scale="frequency", breaks="Sturges", xlab = "Standardized Residuals")
+hist(saleprice_var$stud.residuals, scale="frequency", breaks="Sturges", xlab = "Studendized Residuals")
+plot(saleprice_var$std.residuals, saleprice_var$leverage, main="Scatterplot",xlab="Standardized Residuals", ylab="leverage ", pch=19)
+plot(saleprice_var$stud.residuals, saleprice_var$leverage, main="Scatterplot",xlab="Studendized Residuals", ylab="leverage ", pch=19)
+qqnorm(saleprice_var$std.residuals, pch = 1, frame = FALSE)
+qqline(saleprice_var$std.residuals, col = "steelblue", lwd = 2)
+
+```
+
+As per the plots, no anomalies are observed.
+
+## Overall, is this regression model unbiased? If an unbiased regression model, what does this tell us about the sample vs. the entire population model?
+This regression model appears unbaised.
