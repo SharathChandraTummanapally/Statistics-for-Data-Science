@@ -1,0 +1,73 @@
+---
+title: "ASSIGNMENT 10.2"
+author: "Sharath Chandra Tummanapally"
+date: "2021-11-06"
+output: word_document
+---
+
+#1. Fit a Logistic Regression Model to Thoracic Surgery Binary Dataset
+# a.For this problem, you will be working with the thoracic surgery data set from the University of California Irvine machine learning repository. This dataset contains information on life expectancy in lung cancer patients after surgery. The underlying thoracic surgery data is in ARFF format. This is a text-based format with information on each of the attributes. You can load this data using a package such as foreign or by cutting and pasting the data section into a CSV file.
+```{r include = FALSE}
+
+# Loading the `Thoracic_Surgery_Data.csv` to Thoracic_Surgery_Data_df df.
+Thoracic_Surgery_Data_df <- read.csv("Thoracic_Surgery_Data.csv")
+summary(Thoracic_Surgery_Data_df)
+```
+# b.Assignment Instructions:
+## Fit a binary logistic regression model to the data set that predicts whether or not the patient survived for one year (the Risk1Y variable) after the surgery. Use the glm() function to perform the logistic regression. See Generalized Linear Models for an example. Include a summary using the summary() function in your results.
+```{r echo = FALSE}
+
+# Creating model for dataframe using glm() function.
+model <- glm(Risk1Yr ~ ., data = Thoracic_Surgery_Data_df, family= binomial())
+summary(model)
+```
+
+## According to the summary, which variables had the greatest effect on the survival rate?
+PRE9, PRE14OC14 has the greatest effect on the survival rate.
+
+## To compute the accuracy of your model, use the dataset to predict the outcome variable. The percent of correct predictions is the accuracy of your model. What is the accuracy of your model?
+```{r echo = FALSE}
+# install.packages('caret')
+library(caret)
+
+# Using data split to compute the accuracy of the model.
+trainIndex <- createDataPartition(Thoracic_Surgery_Data_df$PRE9, p=0.8, list=FALSE)
+data_train <- Thoracic_Surgery_Data_df[trainIndex,]
+data_test <- Thoracic_Surgery_Data_df[-trainIndex,]
+predictions <- predict(model, data_train, type = 'response')
+
+# creating confusion matrix to determine accuracy percentage.
+confusion_Matrix <- table(Actual_value = data_train$Risk1Yr, Predicted_value = predictions > 0.5)
+confusion_Matrix
+(confusion_Matrix[[1,1]] + confusion_Matrix[[2,2]]) / sum(confusion_Matrix)
+```
+Accuracy is 83%.
+
+#2. Fit a Logistic Regression Model
+# a.Fit a logistic regression model to the binary-classifier-data.csv dataset
+```{r include = FALSE, warning=FALSE}
+# Setting working directory.
+setwd("/Users/sharath/dsc520_SharathTummanapally")
+
+# Loading the `binary-classifier-data.csv` to binary_data df.
+binarydata_df <- read.csv("data/binary-classifier-data.csv")
+
+# Creating the model.
+binarydata_model <- glm(label ~ x + y, family = binomial(), data = binarydata_df)
+```
+
+# b.The dataset (found in binary-classifier-data.csv) contains three variables; label, x, and y. The label variable is either 0 or 1 and is the output we want to predict using the x and y variables.
+## What is the accuracy of the logistic regression classifier?
+```{r echo = FALSE}
+summary(binarydata_model)
+
+binarydata_df$pred_prob <-fitted(binarydata_model)
+binarydata_df$pred_label<-ifelse(binarydata_df$pred_prob >= .50, 1, 0)
+predictions <- predict(model, data_train, type = 'response')
+confusion_Matrix <- table(Actual_Label = binarydata_df$label, Predicted_Label = binarydata_df$pred_label)
+confusion_Matrix
+(confusion_Matrix[[1,1]] + confusion_Matrix[[2,2]]) / sum(confusion_Matrix)
+```
+Accuracy of the logistic regression classifier is 58%.
+
+## Keep this assignment handy, as you will be comparing your results from this week to next week.
