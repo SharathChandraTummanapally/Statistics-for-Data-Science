@@ -1,0 +1,62 @@
+---
+title: "10.3 Final Project Step 2"
+author: "Sharath Chandra Tummanapally"
+date: "11/12/2021"
+output: pdf_document
+---
+## How to import and clean my data
+
+The datasets I'm using are in csv file format. I am using read_csv to import the data to the dataframe. They are some variables/columns that are not useful for my analysis, they need to be removed. 
+
+## What does the final data set look like?
+
+```{r include=TRUE, echo=FALSE, message = FALSE, warning = FALSE}
+library(readr)
+
+# Setting the working directory.
+setwd("/Users/sharath/dsc520_SharathTummanapally")
+
+# Loading customer loan data to dataframe.
+CustLoanInfo_df <- read_csv("data/finalproject/Customer_Loan_Data.csv")
+
+# Loading unemployment rates to dataframe.
+Unemployment_rates_df <- read_csv("data/finalproject/Unemployment_rate.csv")
+
+# Loading interest rates to dataframe.
+Interest_rates_df <- read_csv("data/finalproject/Interest_rate.csv")
+
+# Merging interest rates variable to CustLoanInfo_df dataframe.
+CustLoanInfo_df <- merge(x = CustLoanInfo_df, y = Interest_rates_df, by = "Bank", all.x = TRUE)
+
+# Merging unemplyment rates variable to CustLoanInfo_df dataframe. 
+# Final dataset.
+CustLoanInfo_df <- merge(x = CustLoanInfo_df, y = Unemployment_rates_df, by = "State", all.x = TRUE)
+
+# Viewing the structure of CustLoanInfo_df
+str(CustLoanInfo_df)
+
+# Summary of CustLoanInfo_df
+summary(CustLoanInfo_df)
+
+# Getting few rows of the CustLoanInfo_df
+head(CustLoanInfo_df)
+
+```
+## What information is not self-evident?
+Since I'm considering the external factors that could effect laon defaulting. There is no clear correlation between unemployment rate across states in India/Interest rate across banks and loan defaulting/loan risk flag. I need to figure that our during our analysis.
+
+## What are different ways you could look at this data?
+1. Unemployment Rate against the Loan Risk flag 
+2. Interest rate against Loan Risk flag
+
+## How do you plan to slice and dice the data?
+There is a risk_flag variable in our CustLoanInfo_df which I am planning to categorize the customers at high risk of loan defaulting. Firstly, I will use the unemployment rate dataset and check the correlation with the rates based on the location (state) vs the risk flag of the customer from those states in the Customer Loan Data. Secondly, I will use the interest rate across the banks dataset and check the correlation the Lending_bank variable with the risk flag variable of the Customer Loan Data dataset.
+
+## How could you summarize your data to answer key questions?
+I will use summary() function on the model in providing the R and R-squared if it's a Linear model or Deviations if it's a Logistic regression. It will provide us the information on how predictors influence the outcome.
+
+## What types of plots and tables will help you to illustrate the findings to your questions?
+I'm going to run Correlation tests, use Scatter plot and histograms.
+
+## Do you plan on incorporating any machine learning techniques to answer your research questions? Explain.
+Given the scenario, I think the research questions could be answered with regression models. I may use machine learning technique, if they aren't answered by outcome of model.
