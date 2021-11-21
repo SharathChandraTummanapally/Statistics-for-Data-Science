@@ -1,0 +1,165 @@
+---
+title: "ASSIGNMENT 11.2"
+author: "Sharath Chandra Tummanapally"
+date: "11/12/2021"
+output: word_document
+---
+# 1. Introduction to Machine Learning
+# Regression algorithms are used to predict numeric quantity while classification algorithms predict categorical outcomes. A spam filter is an example use case for a classification algorithm. The input dataset is emails labeled as either spam (i.e. junk emails) or ham (i.e. good emails). The classification algorithm uses features extracted from the emails to learn which emails fall into which category.
+# In this problem, you will use the nearest neighbors algorithm to fit a model on two simplified datasets. The first dataset (found in binary-classifier-data.csv) contains three variables; label, x, and y. The label variable is either 0 or 1 and is the output we want to predict using the x and y variables (You worked with this dataset last week!). The second dataset (found in trinary-classifier-data.csv) is similar to the first dataset except that the label variable can be 0, 1, or 2.
+```{r include = FALSE, warning=FALSE}
+# Setting working directory.
+setwd("/Users/sharath/dsc520_SharathTummanapally")
+
+# Loading the `binary-classifier-data.csv` to binary_data df.
+binarydata_df <- read.csv("data/binary-classifier-data.csv")
+
+# Loading the `trinary-classifier-data.csv` to binary_data df.
+trinarydata_df <- read.csv("data/trinary-classifier-data.csv")
+```
+
+# Note that in real-world datasets, your labels are usually not numbers, but text-based descriptions of the categories (e.g. spam or ham). In practice, you will encode categorical variables into numeric values.
+## Plot the data from each dataset using a scatter plot.
+```{r echo = FALSE}
+library(ggplot2)
+
+# Plotting binary classifier data.
+ggplot(binarydata_df, aes(x= x, y= y)) + geom_point()
+
+# Plotting trinary classifier data.
+ggplot(trinarydata_df, aes(x= x, y= y)) + geom_point()
+```
+
+## The k nearest neighbors algorithm categorizes an input value by looking at the labels for the k nearest points and assigning a category based on the most common label. In this problem, you will determine which points are nearest by calculating the Euclidean distance between two points. As a refresher, the Euclidean distance between two points:
+# Fitting a model is when you use the input data to create a predictive model. There are various metrics you can use to determine how well your model fits the data. For this problem, you will focus on a single metric, accuracy. Accuracy is simply the percentage of how often the model predicts the correct result. If the model always predicts the correct result, it is 100% accurate. If the model always predicts the incorrect result, it is 0% accurate.
+# Fit a k nearest neighbors’ model for each dataset for k=3, k=5, k=10, k=15, k=20, and k=25. Compute the accuracy of the resulting models for each value of k. Plot the results in a graph where the x-axis is the different values of k and the y-axis is the accuracy of the model.
+```{r echo = FALSE}
+library(class)
+
+# binary_classifier
+ran <- sample(1:nrow(binarydata_df), 0.9 * nrow(binarydata_df))
+nor <- function(x){(x - min(x))/(max(x)-min(x))}
+binary_norm <- as.data.frame(lapply(binarydata_df[,c(2,3)], nor))
+# creating the training set
+binary_train <- binary_norm[ran,]
+# creating the test set
+binary_test <- binary_norm[-ran,]
+binary_target_cat <- binarydata_df[ran, 1]
+binary_test_cat <- binarydata_df[-ran, 1]
+
+k_val <- c(3,5,10,15,20,25)
+accuracy <- function(x){sum(diag(x)/(sum(rowSums(x)))) * 100}
+df <- data.frame(k = integer(), accuracy = double())
+names(df) <- c('k', 'accuracy')
+for (k in k_val) {
+  pr <- knn(binary_train, binary_test, cl= binary_target_cat, k=k)
+  tab <- table(pr, binary_test_cat)
+  de <- data.frame(k, accuracy(tab))
+  names(de) <- c('k', 'accuracy')
+  df <- rbind(df,de)
+}
+ggplot(df, aes(x = k, y= accuracy)) + geom_point() + ggtitle('Knn Binary')
+
+# trinary_classifier
+ran <- sample(1:nrow(trinarydata_df), 0.9 * nrow(trinarydata_df))
+nor <- function(x){(x - min(x))/(max(x)-min(x))}
+trinary_norm <- as.data.frame(lapply(trinarydata_df[,c(2,3)], nor))
+# creating the training set
+trinary_train <- trinary_norm[ran,]
+# creating the test set
+trinary_test <- trinary_norm[-ran,]
+trinary_target_cat <- trinarydata_df[ran, 1]
+trinary_test_cat <- trinarydata_df[-ran, 1]
+
+k_val <- c(3,5,10,15,20,25)
+accuracy <- function(x){sum(diag(x)/(sum(rowSums(x)))) * 100}
+df <- data.frame(k = integer(), accuracy = double())
+names(df) <- c('k', 'accuracy')
+for (k in k_val) {
+  pr <- knn(trinary_train, trinary_test, cl= trinary_target_cat, k=k)
+  tab <- table(pr, trinary_test_cat)
+  de <- data.frame(k, accuracy(tab))
+  names(de) <- c('k', 'accuracy')
+  df <- rbind(df,de)
+}
+ggplot(df, aes(x = k, y= accuracy)) + geom_point() + ggtitle('Knn Trinary')
+```
+
+# Looking back at the plots of the data, do you think a linear classifier would work well on these datasets?
+I don't think a linear classifier would work on these datasets. The clusters seem to be far apart.
+
+# How does the accuracy of your logistic regression classifier from last week compare?  Why is the accuracy different between these two methods?
+My accuracy was around 80% last week. This week it's 90-98%.
+
+# 2. Clustering
+# Labeled data is not always available. For these types of datasets, you can use unsupervised algorithms to extract structure. The k-means clustering algorithm and the k nearest neighbor algorithm both use the Euclidean distance between points to group data points. The difference is the k-means clustering algorithm does not use labeled data.
+# In this problem, you will use the k-means clustering algorithm to look for patterns in an unlabeled dataset. The dataset for this problem is found at data/clustering-data.csv.
+## Plot the dataset using a scatter plot.
+
+```{r include = FALSE, warning=FALSE}
+
+# Setting working directory.
+setwd("/Users/sharath/dsc520_SharathTummanapally")
+
+# Loading clustering data into dataframe.
+cluster_df <- read.csv('data/clustering-data.csv')
+```
+
+```{r echo = FALSE}
+# Plotting the data.
+ggplot(data = cluster_df, aes(x=x , y=y)) + geom_point() + ggtitle('Scatterplot')
+```
+
+## Fit the dataset using the k-means algorithm from k=2 to k=12. Create a scatter plot of the resultant clusters for each value of k.
+
+```{r echo = FALSE}
+# install.packages('cluster')
+# install.packages('factoextra')
+library(cluster)
+library(factoextra)
+
+kmeans2 <- kmeans(cluster_df, 2,)
+fviz_cluster(kmeans2, geom = 'point', data = cluster_df)
+
+kmeans3 <- kmeans(cluster_df, 3,)
+fviz_cluster(kmeans3, geom = 'point', data = cluster_df)
+
+kmeans4 <- kmeans(cluster_df, 4,)
+fviz_cluster(kmeans4, geom = 'point', data = cluster_df)
+
+kmeans5 <- kmeans(cluster_df, 5,)
+fviz_cluster(kmeans5, geom = 'point', data = cluster_df)
+
+kmeans6 <- kmeans(cluster_df, 6,)
+fviz_cluster(kmeans6, geom = 'point', data = cluster_df)
+
+kmeans7 <- kmeans(cluster_df, 7,)
+fviz_cluster(kmeans7, geom = 'point', data = cluster_df)
+
+kmeans8 <- kmeans(cluster_df, 8,)
+fviz_cluster(kmeans8, geom = 'point', data = cluster_df)
+
+kmeans9 <- kmeans(cluster_df, 9,)
+fviz_cluster(kmeans9, geom = 'point', data = cluster_df)
+
+kmeans10 <- kmeans(cluster_df, 10,)
+fviz_cluster(kmeans10, geom = 'point', data = cluster_df)
+
+kmeans11 <- kmeans(cluster_df, 11,)
+fviz_cluster(kmeans11, geom = 'point', data = cluster_df)
+
+kmeans12 <- kmeans(cluster_df, 12,)
+fviz_cluster(kmeans12, geom = 'point', data = cluster_df)
+
+```
+
+## As k-means is an unsupervised algorithm, you cannot compute the accuracy as there are no correct values to compare the output to. Instead, you will use the average distance from the center of each cluster as a measure of how well the model fits the data. To calculate this metric, simply compute the distance of each data point to the center of the cluster it is assigned to and take the average value of all of those distances.
+
+# Calculate this average distance from the center of each cluster for each value of k and plot it as a line chart where k is the x-axis and the average distance is the y-axis.
+
+```{r echo = FALSE}
+fviz_nbclust(cluster_df, kmeans, method = 'wss', k.max = 12) + geom_vline(xintercept = 5, linetype = 2)
+```
+
+# One way of determining the “right” number of clusters is to look at the graph of k versus average distance and finding the “elbow point”. Looking at the graph you generated in the previous example, what is the elbow point for this dataset?
+The elbow point seems to be at 4 or 5 clusters.
